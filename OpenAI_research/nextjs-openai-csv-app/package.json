@@ -1,0 +1,23 @@
+{
+    "name": "nextjs-openai-csv-app",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start"
+    },
+    "dependencies": {
+        "csv-parser": "^3.0.0",
+        "formidable": "^3.5.2",
+        "leaflet": "^1.9.4",
+        "next": "13.4.0",
+        "openai": "^4.0.0",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
+        "react-leaflet": "^5.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}

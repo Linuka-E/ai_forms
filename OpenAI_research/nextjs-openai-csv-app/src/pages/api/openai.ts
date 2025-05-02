@@ -3,7 +3,8 @@ import OpenAI from 'openai';
 import formidable from 'formidable';
 import fs from 'fs';
 
-const openai = new OpenAI({ apiKey: 'EaZAowPFBEoA32dgdogDrMBtCdVPl1yLn_GUPdzFlFtTC1Q40BgmUDlgqF2eqLmOfffdGyrFpeT3BlbkFJNCJVftUxqgBImzdQTfYhgMc0r1K4QDcxfUK5v5luwpk6sgPCeHV1BayLbTQvRlSjavTuTrQ9gA' });
+const openai = new OpenAI({ apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY });
+
 
 export const config = {
   api: {

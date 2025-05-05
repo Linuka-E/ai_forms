@@ -1,54 +1,42 @@
 import React, { useState } from 'react';
 
-interface AudioDropzoneProps {
-  onAudioUpload: (file: File) => void;
-}
+const AudioDropzone = ({ accept, onDrop }: { accept: string; onDrop: (files: File[]) => void }) => {
+  const [isDragActive, setIsDragActive] = useState(false);
 
-const AudioDropzone: React.FC<AudioDropzoneProps> = ({ onAudioUpload }) => {
-  const [dragging, setDragging] = useState(false);
-  const [audioFileName, setAudioFileName] = useState<string | null>(null);
-
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setDragging(false);
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setDragging(false);
-
-    const file = event.dataTransfer.files[0];
-    if (file && file.type === 'audio/mpeg') {
-      setAudioFileName(file.name);
-      onAudioUpload(file);
-    } else {
-      alert('Please drop a valid MP3 audio file.');
-    }
+  const handleDrag = (e: React.DragEvent, active: boolean) => {
+    e.preventDefault();
+    setIsDragActive(active);
   };
 
   return (
     <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      onDragEnter={(e) => handleDrag(e, true)}
+      onDragLeave={(e) => handleDrag(e, false)}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        setIsDragActive(false);
+        onDrop(Array.from(e.dataTransfer.files));
+      }}
       style={{
-        border: dragging ? '3px dashed #0070f3' : '3px dashed #ccc',
-        borderRadius: '10px',
-        padding: '20px',
+        padding: '40px',
+        border: `2px dashed ${isDragActive ? '#0070f3' : '#ccc'}`,
+        borderRadius: '8px',
+        backgroundColor: isDragActive ? '#f0f8ff' : '#f9f9f9',
         textAlign: 'center',
-        backgroundColor: dragging ? '#e6f7ff' : '#fff',
+        cursor: 'pointer',
         transition: 'all 0.3s ease',
       }}
     >
-      {audioFileName ? (
-        <p style={{ color: '#0070f3' }}>Uploaded: {audioFileName}</p>
-      ) : (
-        <p style={{ color: '#555' }}>Drag & Drop an MP3 file here</p>
-      )}
+      <p>Drag & drop audio files here ({accept})</p>
+      <p>or click to select files</p>
+      <input
+        type="file"
+        accept={accept}
+        onChange={(e) => e.target.files && onDrop(Array.from(e.target.files))}
+        style={{ display: 'none' }}
+        id="audio-upload"
+      />
     </div>
   );
 };

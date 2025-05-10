@@ -1,0 +1,27 @@
+{
+  "name": "pdf-to-json-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "multer": "^1.4.5-lts.2",
+    "next": "latest",
+    "next-connect": "^1.0.0",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^2.16.105",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/multer": "^1.4.12",
+    "@types/node": "latest",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/react": "latest",
+    "typescript": "latest"
+  }
+}

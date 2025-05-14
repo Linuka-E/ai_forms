@@ -1,0 +1,101 @@
+{
+  "_id": {
+    "$oid": "67ef208a18f1850969e26381"
+  },
+  "name": "Demographic",
+  "description": "",
+  "content": [
+    {
+      "id": "0b5fd95e-ef75-4902-a602-d10b85af679d",
+      "type": "TextField",
+      "extraAttributes": {
+        "label": "Name",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false
+      }
+    },
+    {
+      "id": "cb377a9c-0e37-481e-a2e0-9594d3c26fbe",
+      "type": "TextField",
+      "extraAttributes": {
+        "label": "Email",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false
+      }
+    },
+    {
+      "id": "7d3ed087-22cf-47e3-9470-2d8f42487241",
+      "type": "SelectField",
+      "extraAttributes": {
+        "label": "Gender",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false,
+        "options": [
+          "Male",
+          "Female",
+          "Other"
+        ]
+      }
+    },
+    {
+      "id": "0d70dd0a-76eb-4ee4-8a75-a9d472d244d2",
+      "type": "DateField",
+      "extraAttributes": {
+        "label": "Birthday",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false
+      }
+    },
+    {
+      "id": "95562b58-8e44-408d-ab29-04221f80d0cd",
+      "type": "NumberField",
+      "extraAttributes": {
+        "label": "Age",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false
+      }
+    },
+    {
+      "id": "67f49033-a7bd-4553-adeb-0e771c2b15ca",
+      "type": "TextField",
+      "extraAttributes": {
+        "label": "Notes",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false
+      }
+    },
+    {
+      "id": "5bda180e-e1f9-4b5e-9898-02e47b779184",
+      "type": "CheckboxField",
+      "extraAttributes": {
+        "label": "Alumni?",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false
+      }
+    },
+    {
+      "id": "a09a11ea-c5a6-4e64-a21d-862e810e0caa",
+      "type": "SwitchField",
+      "extraAttributes": {
+        "label": "Can Connect?",
+        "helperText": "",
+        "placeHolder": "",
+        "required": false
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-04-03T23:58:02.761Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-03T23:58:02.761Z"
+  },
+  "__v": 0
+}

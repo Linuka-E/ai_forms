@@ -1,4 +1,4 @@
-import { Controller, Post, UploadedFile, UseInterceptors, Body, Query } from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseInterceptors, Body, Query, Get } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Multer } from 'multer';
 import { OpenAI } from 'openai';
@@ -14,40 +14,151 @@ export class AgenticAiController {
   public inConversation: boolean = false;
   private threadId: string | null = null;
   private currentForm: string | null = null;
-
-  public form1: any = {
-    name: 'Simple Form',
-    description: 'basic fields',
-    content: [
-      { label: 'Name', type: 'TextField', required: false },
-      { label: 'Email', type: 'TextField', required: false },
-      { label: 'Gender', type: 'SelectField', required: false, options: ['Male', 'Female', 'Other'] },
-      { label: 'Birthday', type: 'DateField', required: false },
-      { label: 'Age', type: 'NumberField', required: false },
-      { label: 'Notes', type: 'TextField', required: true },
-      { label: 'Alumni', type: 'CheckboxField', required: false },
-      { label: 'Can Connect', type: 'SwitchField', required: false },
-    ],
-  };
-
-  public form2: any = {
-    name: 'SUT test',
-    description: 'testing',
-    content: [
-      { label: 'First Name', type: 'TextField', required: true },
-      { label: 'Company', type: 'TextField', required: false },
-      { label: 'Job Title', type: 'TextField', required: false },
-      { label: 'What is your association with Swinburne?', type: 'SelectField', required: true, options: ['Alumni', 'Staff', 'Student', 'Industry Partner', 'Other'] },
-      { label: 'Do you identify as Aboriginal and/or Torres Strait Islander?', type: 'SelectField', required: false, options: ['No', 'Yes', 'Prefer not to say'] },
-      { label: 'Have you previously attended any events or programs hosted by the Swinburne Innovation Studio?', type: 'SelectField', required: false, options: ['Yes', 'No', 'Unsure'] },
-    ],
-  };
-
+  private formData: any = null;
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('OPENAI_API_KEY');
     console.log('API Key from config (first few chars):', apiKey?.substring(0, 8) + '...');
     this.openai = new OpenAI({ apiKey });
+    
+    // Load demographic form data
+    this.loadDemographicData();
+  }
+
+  private loadDemographicData() {
+    try {
+      // Path to your demographic.json file
+      const filePath = path.join(__dirname, '..', '..', 'data', 'demographic.json');
+      
+      if (fs.existsSync(filePath)) {
+        const fileData = fs.readFileSync(filePath, 'utf8');
+        this.formData = JSON.parse(fileData);
+        console.log('Loaded demographic data successfully');
+      } else {
+        console.error('demographic.json not found at path:', filePath);
+        // Set a fallback form if file is not found
+        this.formData = {
+          name: 'Demographic',
+          description: '',
+          content: [
+            {
+              id: '0b5fd95e-ef75-4902-a602-d10b85af679d',
+              type: 'TextField',
+              extraAttributes: {
+                label: 'Name',
+                helperText: '',
+                placeHolder: '',
+                required: false
+              }
+            },
+            {
+              id: 'cb377a9c-0e37-481e-a2e0-9594d3c26fbe',
+              type: 'TextField',
+              extraAttributes: {
+                label: 'Email',
+                helperText: '',
+                placeHolder: '',
+                required: false
+              }
+            },
+            {
+              id: '7d3ed087-22cf-47e3-9470-2d8f42487241',
+              type: 'SelectField',
+              extraAttributes: {
+                label: 'Gender',
+                helperText: '',
+                placeHolder: '',
+                required: false,
+                options: [
+                  'Male',
+                  'Female',
+                  'Other'
+                ]
+              }
+            },
+            {
+              id: '0d70dd0a-76eb-4ee4-8a75-a9d472d244d2',
+              type: 'DateField',
+              extraAttributes: {
+                label: 'Birthday',
+                helperText: '',
+                placeHolder: '',
+                required: false
+              }
+            },
+            {
+              id: '95562b58-8e44-408d-ab29-04221f80d0cd',
+              type: 'NumberField',
+              extraAttributes: {
+                label: 'Age',
+                helperText: '',
+                placeHolder: '',
+                required: false
+              }
+            },
+            {
+              id: '67f49033-a7bd-4553-adeb-0e771c2b15ca',
+              type: 'TextField',
+              extraAttributes: {
+                label: 'Notes',
+                helperText: '',
+                placeHolder: '',
+                required: false
+              }
+            },
+            {
+              id: '5bda180e-e1f9-4b5e-9898-02e47b779184',
+              type: 'CheckboxField',
+              extraAttributes: {
+                label: 'Alumni?',
+                helperText: '',
+                placeHolder: '',
+                required: false
+              }
+            },
+            {
+              id: 'a09a11ea-c5a6-4e64-a21d-862e810e0caa',
+              type: 'SwitchField',
+              extraAttributes: {
+                label: 'Can Connect?',
+                helperText: '',
+                placeHolder: '',
+                required: false
+              }
+            }
+          ]
+        };
+      }
+    } catch (error) {
+      console.error('Error loading demographic data:', error);
+    }
+  }
+
+  // Helper to format form data for OpenAI
+  private formatFormForOpenAI() {
+    if (!this.formData) return null;
+    
+    // Convert the MongoDB document format to the format expected by the Assistant
+    const formattedForm = {
+      name: this.formData.name,
+      description: this.formData.description,
+      content: this.formData.content.map(field => {
+        return {
+          label: field.extraAttributes.label,
+          type: field.type,
+          required: field.extraAttributes.required,
+          options: field.extraAttributes.options || undefined,
+        };
+      })
+    };
+    
+    return formattedForm;
+  }
+
+  // Add endpoint to fetch form data
+  @Get('forms')
+  getForms() {
+    return this.formData || { error: 'Form data not available' };
   }
 
   private resetThreadIfFormChanged(selected: string) {
@@ -60,13 +171,21 @@ export class AgenticAiController {
   }
 
   @Post('text')
-  async handleText(@Body('message') message: string, @Query('form') formChoice: string) {
+  async handleText(@Body('message') message: string, @Query('form') formChoice: string = 'demographic') {
     this.resetThreadIfFormChanged(formChoice);
-    const form = formChoice === 'form2' ? this.form2 : this.form1;
+    const formattedForm = this.formatFormForOpenAI();
+    
+    if (!formattedForm) {
+      return {
+        error: 'Form data not available'
+      };
+    }
+    
     const assistantPrompt = `{
-      "Form": ${JSON.stringify(form)},
+      "Form": ${JSON.stringify(formattedForm)},
       "Transcript": "${message.replace(/"/g, '\"')}"
     }`;
+    
     const response = await this.runAssistant(assistantPrompt);
     return {
       agentMessage: response['Response'],
@@ -76,9 +195,16 @@ export class AgenticAiController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  async handleVoice(@UploadedFile() file: Multer.File, @Query('form') formChoice: string) {
+  async handleVoice(@UploadedFile() file: Multer.File, @Query('form') formChoice: string = 'demographic') {
     this.resetThreadIfFormChanged(formChoice);
     console.log('Received file:', file.originalname);
+
+    const formattedForm = this.formatFormForOpenAI();
+    if (!formattedForm) {
+      return {
+        error: 'Form data not available'
+      };
+    }
 
     const tempDir = path.join(__dirname, '..', 'temp');
     if (!fs.existsSync(tempDir)) {
@@ -93,9 +219,8 @@ export class AgenticAiController {
       console.log('Transcription:', transcription);
       fs.unlinkSync(tempFilePath);
 
-      const form = formChoice === 'form2' ? this.form2 : this.form1;
       const assistantPrompt = `{
-        "Form": ${JSON.stringify(form)},
+        "Form": ${JSON.stringify(formattedForm)},
         "Transcript": "${transcription.replace(/"/g, '\"')}"
       }`;
 
@@ -174,8 +299,7 @@ export class AgenticAiController {
 
       const content = textBlock.text.value;
 
-
-      console.log(content)
+      console.log(content);
       let parsed: any;
       try {
         parsed = JSON.parse(content);
@@ -185,10 +309,8 @@ export class AgenticAiController {
 
       const { Response, 'Current Form': currentForm } = parsed;
       const { Finish, 'Finished': finish} = parsed; 
-      console.log("finished???")
-      console.log(finish)
-
-
+      console.log("finished???");
+      console.log(finish);
 
       const allFieldsFilled = Object.values(currentForm).every(
         (value) => value !== '' && value !== 'Not provided'

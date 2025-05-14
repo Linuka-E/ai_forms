@@ -1,3 +1,6 @@
 node_modules/
 .next/
 **/.next/
+node_modules/
+.next/
+**/*.node # This will ignore all .node files

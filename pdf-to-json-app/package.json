@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "canvas": "^3.1.0",
     "multer": "^1.4.5-lts.2",
     "next": "latest",
     "next-connect": "^1.0.0",
@@ -15,7 +16,8 @@
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^2.16.105",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
     "@types/multer": "^1.4.12",

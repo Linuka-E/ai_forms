@@ -1,16 +1,49 @@
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import pdfParse from 'pdf-parse';
+import Tesseract from 'tesseract.js';
 
 export const extractFields = async (pdfBuffer: Buffer): Promise<any> => {
   try {
     if (!pdfBuffer || pdfBuffer.byteLength === 0) {
-      throw new Error('Uploaded file is empty or invalid.');
+      return { _error: 'Uploaded file is empty or invalid.' };
     }
 
+    let textContent = '';
+    let usedOCR = false;
+
+    // Try extracting text normally
     const pdfData = await pdfParse(pdfBuffer);
-    const textContent = pdfData.text || '';
+    textContent = pdfData.text || '';
+
+    // If no extractable text, try OCR (for scanned PDFs)
     if (!textContent.trim()) {
-      throw new Error('The PDF does not contain extractable text.');
+      usedOCR = true;
+      try {
+        const loadingTask = pdfjsLib.getDocument({ data: pdfBuffer });
+        const pdf = await loadingTask.promise;
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 2.0 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          if (!context) continue;
+          await page.render({ canvasContext: context, viewport }).promise;
+          const dataUrl = canvas.toDataURL('image/png');
+          const { data: { text } } = await Tesseract.recognize(dataUrl, 'eng');
+          textContent += '\n' + text;
+        }
+      } catch (ocrError) {
+        // OCR failed, but don't throw
+        return { _error: 'Failed to extract text from scanned PDF.', _usedOCR: true };
+      }
+    }
+
+    if (!textContent.trim()) {
+      // Instead of throwing, return a flag
+      return { _noExtractableText: true, _usedOCR: usedOCR };
     }
 
     const extractedFields: { [key: string]: any } = {};
@@ -44,7 +77,6 @@ export const extractFields = async (pdfBuffer: Buffer): Promise<any> => {
           extractedFields[key] = value;
         }
       } else {
-        // Fallback: guess unstructured field
         const lower = line.toLowerCase();
         if (lower.includes('@')) {
           extractedFields['email'] = line;
@@ -58,9 +90,11 @@ export const extractFields = async (pdfBuffer: Buffer): Promise<any> => {
       }
     }
 
+    extractedFields._usedOCR = usedOCR;
     return extractedFields;
   } catch (error) {
-    console.error('Error parsing PDF:', error);
-    throw new Error('Failed to parse PDF');
+    // Do not leak sensitive info
+    console.error('Error parsing PDF');
+    return { _error: 'Failed to parse PDF, please try again' };
   }
 };

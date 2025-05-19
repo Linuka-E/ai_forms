@@ -4,3 +4,4 @@ node_modules/
 node_modules/
 .next/
 **/*.node # This will ignore all .node files
+.env

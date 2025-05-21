@@ -3,6 +3,8 @@ import styles from './formStyles.module.css';
 import { useState,useRef } from 'react';
 import { callBackend } from '@/lib/api';
 import type { FormData, FormField } from '@/types/form';
+import FormFieldCreator from './FormFieldCreator';
+
 
 export default function Home() {
 
@@ -190,247 +192,17 @@ export default function Home() {
     <h2>{formData.name}</h2>
     {formData.description && <p>{formData.description}</p>}
     <form onSubmit={handleFormSubmit}>
-      {formData.content.map((field, idx) => {
-        const { type, extraAttributes } = field;
-        const name = extraAttributes.label.replace(/\s+/g, '_').toLowerCase();
-        switch (type) {
-          case 'TextField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <input
-                    type="text"
-                    name={name}
-                    placeholder={extraAttributes.placeHolder}
-                    required={extraAttributes.required}
-                    value={formValues[name] || ''}
-                    onChange={handleInputChange}
-                    style={{ marginLeft: '8px', padding: '4px' }}
-                  />
-                </label>
-              </div>
-            );
-          case 'TextareaField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <textarea
-                    name={name}
-                    placeholder={extraAttributes.placeHolder}
-                    required={extraAttributes.required}
-                    value={formValues[name] || ''}
-                    onChange={handleInputChange}
-                    style={{ marginLeft: '8px', padding: '4px', width: '100%', height: '100px' }}
-                  />
-                </label>
-              </div>
-            );
-          case 'NumberField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <input
-                    type="number"
-                    name={name}
-                    placeholder={extraAttributes.placeHolder}
-                    required={extraAttributes.required}
-                    value={formValues[name] || ''}
-                    onChange={handleInputChange}
-                    style={{ marginLeft: '8px', padding: '4px' }}
-                  />
-                </label>
-              </div>
-            );
-          case 'DateField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <input
-                    type="date"
-                    name={name}
-                    required={extraAttributes.required}
-                    value={formValues[name] || ''}
-                    onChange={handleInputChange}
-                    style={{ marginLeft: '8px', padding: '4px' }}
-                  />
-                </label>
-              </div>
-            );
-          case 'SelectField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <select
-                    name={name}
-                    required={extraAttributes.required}
-                    value={formValues[name] || ''}
-                    onChange={handleInputChange}
-                    style={{ marginLeft: '8px', padding: '4px' }}
-                  >
-                    <option value="">Select...</option>
-                    {extraAttributes.options &&
-                      extraAttributes.options.map((option: string, i: number) => (
-                        <option key={i} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              </div>
-            );
-          case 'CheckboxField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  <input
-                    type="checkbox"
-                    name={name}
-                    checked={!!formValues[name]}
-                    onChange={e =>
-                      setFormValues({
-                        ...formValues,
-                        [name]: e.target.checked ? 'true' : 'false',
-                      })
-                    }
-                    style={{ marginRight: '8px' }}
-                  />
-                  {extraAttributes.label}
-                </label>
-              </div>
-            );
-          case 'SwitchField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  <input
-                    type="checkbox"
-                    name={name}
-                    checked={!!formValues[name]}
-                    onChange={e =>
-                      setFormValues({
-                        ...formValues,
-                        [name]: e.target.checked ? 'true' : 'false',
-                      })
-                    }
-                    style={{ marginRight: '8px' }}
-                  />
-                  {extraAttributes.label}
-                </label>
-              </div>
-            );
-          case 'UploadField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <input
-                    type="file"
-                    name={name}
-                    required={extraAttributes.required}
-                    onChange={e => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setFormValues({
-                          ...formValues,
-                          [name]: file.name,
-                        });
-                      }
-                    }}
-                    style={{ marginLeft: '8px', padding: '4px' }}
-                  />
-                </label>
-              </div>
-            );
-          case 'GPSField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <button
-                    type="button"
-                    className={styles.FormButton} onClick={async() => {
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                          position => {
-                            const { latitude, longitude } = position.coords;
-                            setFormValues({
-                              ...formValues,
-                              [name]: `Latitude: ${latitude}, Longitude: ${longitude}`,
-                            });
-                          },
-                          error => {
-                            console.error('Error getting location:', error);
-                          }
-                        );
-                      } else {
-                        console.error('Geolocation is not supported by this browser.');
-                      }
-                    }}
-                  >
-                    Get Location
-                  </button>
-                  <input
-                    type="text"
-                    name={name}
-                    value={formValues[name] || ''}
-                    readOnly
-                    style={{
-                      marginLeft: '8px',
-                      padding: '4px',
-                      width: 'calc(100% - 120px)'
-                    }}
-                  />
-                </label>
-              </div>
-            ) 
-          default:
-            return null;
-          
-          case 'RadioField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>{extraAttributes.label}</label>
-                {extraAttributes.options &&
-                  extraAttributes.options.map((option: string, i: number) => (
-                    <div key={i}>
-                      <input
-                        type="radio"
-                        name={name}
-                        value={option}
-                        checked={formValues[name] === option}
-                        onChange={handleInputChange}
-                        style={{ marginRight: '8px' }}
-                      />
-                      {option}
-                    </div>
-                  ))}
-              </div>
-            )
-          case 'AddressField':
-            return (
-              <div key={idx} style={{ marginBottom: '16px' }}>
-                <label>
-                  {extraAttributes.label}
-                  <input
-                    type="text"
-                    name={name}
-                    placeholder={extraAttributes.placeHolder}
-                    required={extraAttributes.required}
-                    value={formValues[name] || ''}
-                    onChange={handleInputChange}
-                    style={{ marginLeft: '8px', padding: '4px' }}
-                  />
-                </label>
-              </div>
-            )
-        }
-      })}
-      <button
+      {formData.content.map((field, idx) => (
+        <FormFieldCreator
+          key={idx}
+          field={field}
+          value={formValues[field.extraAttributes.label.replace(/\s+/g, '_').toLowerCase()] || ''}
+          onChange={handleInputChange}
+          setFormValues={setFormValues}
+          formValues={formValues}
+        />
+      ))}
+            <button
         type="submit"
         className={styles.formButton}
       >

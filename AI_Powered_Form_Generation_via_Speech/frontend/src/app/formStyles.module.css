@@ -1,0 +1,19 @@
+.formButton {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #007BFF;
+  color: white;
+  border: 2px solid #007BFF;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.formButton:hover, .formButton:focus {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: scale(1.04);
+}

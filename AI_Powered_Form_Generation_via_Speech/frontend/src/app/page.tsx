@@ -1,5 +1,5 @@
 'use client';
-
+import styles from './formStyles.module.css'; 
 import { useState,useRef } from 'react';
 import { callBackend } from '@/lib/api';
 import type { FormData, FormField } from '@/types/form';
@@ -353,17 +353,7 @@ export default function Home() {
                   {extraAttributes.label}
                   <button
                     type="button"
-                    style={{
-                      padding: '4px 8px',
-                      backgroundColor: '#007BFF',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      marginLeft: '8px',
-                    }} onClick={async() => {
+                    className={styles.FormButton} onClick={async() => {
                       if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(
                           position => {
@@ -442,29 +432,7 @@ export default function Home() {
       })}
       <button
         type="submit"
-        style={{
-          marginTop: '16px',
-          padding: '8px 16px',
-          backgroundColor: '#007BFF',
-          color: 'white',
-          border: '2px solid #007BFF',
-          borderRadius: '4px',
-          fontWeight: 'bold',
-          fontSize: '16px',
-          cursor: 'pointer',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
-          transition: 'background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.backgroundColor = '#0056b3';
-          e.currentTarget.style.borderColor = '#0056b3';
-          e.currentTarget.style.transform = 'scale(1.04)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.backgroundColor = '#007BFF';
-          e.currentTarget.style.borderColor = '#007BFF';
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
+        className={styles.formButton}
       >
         Submit
       </button>

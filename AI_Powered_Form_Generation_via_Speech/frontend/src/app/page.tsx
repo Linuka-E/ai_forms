@@ -42,7 +42,8 @@ export default function Home() {
 
   
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>  ) => {
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     setFormValues({
       ...formValues,
       [e.target.name]: e.target.value,
@@ -175,7 +176,7 @@ export default function Home() {
         </button>
       </form>
 
-      {formData && (
+{formData && (
   <section
     style={{
       marginTop: '20px',
@@ -186,73 +187,291 @@ export default function Home() {
       color: 'black',
     }}
   >
-    <h2>{formData.form.title}</h2>
+    <h2>{formData.name}</h2>
+    {formData.description && <p>{formData.description}</p>}
     <form onSubmit={handleFormSubmit}>
-      {formData.form.fields.map((field: FormField) => (
-        <div key={field.name} style={{ marginBottom: '15px' }}>
-          <label htmlFor={field.name} style={{ display: 'block', color: 'black' }}>
-            {field.label} {field.required && <span style={{ color: 'red' }}>*</span>}
-          </label>
-          {field.type ==='dropdown' && field.options || field.type == 'select' && field.options ? (
-            <select
-              id={field.name}
-              name={field.name}
-              required={field.required}
-              value={field.name ? formValues[field.name] || '' : ''}
-              onChange={handleInputChange}
-              style={{
-                width: '100%',
-                padding: '5px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                color: 'black',
-              }}
-              >
-            <option value="" disabled>
-              Select an option
-            </option>
-            {field.options.map((option, idx) => (
-              <option key={idx} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          ) : (
-          <input
-            id={field.name}
-            name={field.name}
-            type={field.type}
-            required={field.required}
-            value={field.name ? formValues[field.name] || '' : ''}
-            onChange={handleInputChange}
-            style={{
-              width: '100%',
-              padding: '5px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              color: 'black',
-            }}
-          />
-          )}
-        </div>
-      ))}
+      {formData.content.map((field, idx) => {
+        const { type, extraAttributes } = field;
+        const name = extraAttributes.label.replace(/\s+/g, '_').toLowerCase();
+        switch (type) {
+          case 'TextField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <input
+                    type="text"
+                    name={name}
+                    placeholder={extraAttributes.placeHolder}
+                    required={extraAttributes.required}
+                    value={formValues[name] || ''}
+                    onChange={handleInputChange}
+                    style={{ marginLeft: '8px', padding: '4px' }}
+                  />
+                </label>
+              </div>
+            );
+          case 'TextareaField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <textarea
+                    name={name}
+                    placeholder={extraAttributes.placeHolder}
+                    required={extraAttributes.required}
+                    value={formValues[name] || ''}
+                    onChange={handleInputChange}
+                    style={{ marginLeft: '8px', padding: '4px', width: '100%', height: '100px' }}
+                  />
+                </label>
+              </div>
+            );
+          case 'NumberField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <input
+                    type="number"
+                    name={name}
+                    placeholder={extraAttributes.placeHolder}
+                    required={extraAttributes.required}
+                    value={formValues[name] || ''}
+                    onChange={handleInputChange}
+                    style={{ marginLeft: '8px', padding: '4px' }}
+                  />
+                </label>
+              </div>
+            );
+          case 'DateField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <input
+                    type="date"
+                    name={name}
+                    required={extraAttributes.required}
+                    value={formValues[name] || ''}
+                    onChange={handleInputChange}
+                    style={{ marginLeft: '8px', padding: '4px' }}
+                  />
+                </label>
+              </div>
+            );
+          case 'SelectField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <select
+                    name={name}
+                    required={extraAttributes.required}
+                    value={formValues[name] || ''}
+                    onChange={handleInputChange}
+                    style={{ marginLeft: '8px', padding: '4px' }}
+                  >
+                    <option value="">Select...</option>
+                    {extraAttributes.options &&
+                      extraAttributes.options.map((option: string, i: number) => (
+                        <option key={i} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              </div>
+            );
+          case 'CheckboxField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  <input
+                    type="checkbox"
+                    name={name}
+                    checked={!!formValues[name]}
+                    onChange={e =>
+                      setFormValues({
+                        ...formValues,
+                        [name]: e.target.checked ? 'true' : 'false',
+                      })
+                    }
+                    style={{ marginRight: '8px' }}
+                  />
+                  {extraAttributes.label}
+                </label>
+              </div>
+            );
+          case 'SwitchField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  <input
+                    type="checkbox"
+                    name={name}
+                    checked={!!formValues[name]}
+                    onChange={e =>
+                      setFormValues({
+                        ...formValues,
+                        [name]: e.target.checked ? 'true' : 'false',
+                      })
+                    }
+                    style={{ marginRight: '8px' }}
+                  />
+                  {extraAttributes.label}
+                </label>
+              </div>
+            );
+          case 'UploadField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <input
+                    type="file"
+                    name={name}
+                    required={extraAttributes.required}
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setFormValues({
+                          ...formValues,
+                          [name]: file.name,
+                        });
+                      }
+                    }}
+                    style={{ marginLeft: '8px', padding: '4px' }}
+                  />
+                </label>
+              </div>
+            );
+          case 'GPSField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <button
+                    type="button"
+                    style={{
+                      padding: '4px 8px',
+                      backgroundColor: '#007BFF',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      marginLeft: '8px',
+                    }} onClick={async() => {
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                          position => {
+                            const { latitude, longitude } = position.coords;
+                            setFormValues({
+                              ...formValues,
+                              [name]: `Latitude: ${latitude}, Longitude: ${longitude}`,
+                            });
+                          },
+                          error => {
+                            console.error('Error getting location:', error);
+                          }
+                        );
+                      } else {
+                        console.error('Geolocation is not supported by this browser.');
+                      }
+                    }}
+                  >
+                    Get Location
+                  </button>
+                  <input
+                    type="text"
+                    name={name}
+                    value={formValues[name] || ''}
+                    readOnly
+                    style={{
+                      marginLeft: '8px',
+                      padding: '4px',
+                      width: 'calc(100% - 120px)'
+                    }}
+                  />
+                </label>
+              </div>
+            ) 
+          default:
+            return null;
+          
+          case 'RadioField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>{extraAttributes.label}</label>
+                {extraAttributes.options &&
+                  extraAttributes.options.map((option: string, i: number) => (
+                    <div key={i}>
+                      <input
+                        type="radio"
+                        name={name}
+                        value={option}
+                        checked={formValues[name] === option}
+                        onChange={handleInputChange}
+                        style={{ marginRight: '8px' }}
+                      />
+                      {option}
+                    </div>
+                  ))}
+              </div>
+            )
+          case 'AddressField':
+            return (
+              <div key={idx} style={{ marginBottom: '16px' }}>
+                <label>
+                  {extraAttributes.label}
+                  <input
+                    type="text"
+                    name={name}
+                    placeholder={extraAttributes.placeHolder}
+                    required={extraAttributes.required}
+                    value={formValues[name] || ''}
+                    onChange={handleInputChange}
+                    style={{ marginLeft: '8px', padding: '4px' }}
+                  />
+                </label>
+              </div>
+            )
+        }
+      })}
       <button
         type="submit"
         style={{
-          padding: '10px 20px',
+          marginTop: '16px',
+          padding: '8px 16px',
           backgroundColor: '#007BFF',
           color: 'white',
-          border: 'none',
+          border: '2px solid #007BFF',
           borderRadius: '4px',
+          fontWeight: 'bold',
+          fontSize: '16px',
           cursor: 'pointer',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+          transition: 'background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.backgroundColor = '#0056b3';
+          e.currentTarget.style.borderColor = '#0056b3';
+          e.currentTarget.style.transform = 'scale(1.04)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.backgroundColor = '#007BFF';
+          e.currentTarget.style.borderColor = '#007BFF';
+          e.currentTarget.style.transform = 'scale(1)';
         }}
       >
         Submit
       </button>
-
     </form>
   </section>
-  )}
+)}
+
   {queryTime !== null && (
   <p style={{ marginTop: '10px', color: 'white' }}>
     Query completed in {queryTime} milliseconds.

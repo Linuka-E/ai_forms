@@ -15,10 +15,35 @@ export class GrokService {
   }
 
   async callGrokApi(query: string): Promise<any> {
-    const prompt = `Generate a form based on this prompt and return it as a JSON object: "${query}". 
-    The JSON should include a "form" object with 
-    "title", "fields" (array of objects with "name", "label", "type", "required",
-    and optionally "options" for dropdowns as an array of string), and "submitButton".`;
+    const prompt = `Generate a form based on this prompt and return it as a JSON object in the following format:
+
+      {
+        "name": "<form name>",
+        "description": "<form description>",
+        "content": [
+          {
+            "type": "<FieldType>", // e.g., TextField, TextareaField, SelectField, DateField, NumberField, CheckboxField, SwitchField, UploadField, GPSField, RadioField, AddressField 
+            "extraAttributes": {
+              "label": "<Field label>",
+              "helperText": "",
+              "placeHolder": "",
+              "required": <true|false>,
+              "options": [ "<option1>", "<option2>", ... ] // Only for SelectField
+            }
+          }
+          // ...more fields
+        ]
+      }
+
+      - The "content" array should contain objects for each field.
+      - Use "type" to specify the field type as shown above.
+      - For SelectField, include an "options" array in "extraAttributes".
+      - For other fields, omit the "options" property.
+      - Only include properties shown above.
+      - Do not add any extra explanation or text, just the JSON object.
+
+      Prompt: "${query}";
+    `;
     try {
       const completion = await this.client.chat.completions.create({
         model: 'gemini-2.0-flash', // As per the documentation

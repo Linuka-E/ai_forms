@@ -1,22 +1,26 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { extractFields } from '../../utils/pdfParser';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import multer from 'multer';
-import { promisify } from 'util';
-import { Readable } from 'stream';
+import { extractFields } from '../../utils/pdfParser';
 
-// Configure multer to store files in memory
-const upload = multer({
-  storage: multer.memoryStorage(),
-});
+// Set up multer to store files in memory
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Promisify the multer middleware to use it in an async function
-const multerMiddleware = promisify(upload.single('file'));
-
+// Disable Next.js default body parser
 export const config = {
-  api: {
-    bodyParser: false, // Disable body parsing to handle file uploads
-  },
+  api: { bodyParser: false },
 };
+
+// Helper to run multer as a promise
+function runMiddleware(req: NextApiRequest, res: NextApiResponse, fn: Function) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve(result);
+    });
+  });
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -24,24 +28,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Cast NextApiRequest to Express.Request for multer compatibility
-    const reqWithExpress = req as any;
+    // Run multer middleware
+    await runMiddleware(req, res, upload.single('file'));
 
-    // Use the multer middleware to handle the file upload
-    const expressRes = res as any; // Cast NextApiResponse to any for Express compatibility
-    await multerMiddleware(reqWithExpress, expressRes);
-
-    const file = reqWithExpress.file;
-
+    // @ts-ignore
+    const file = req.file;
     if (!file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
     const pdfBuffer = file.buffer;
-
-    // Use the pdfParser utility to extract fields
     const extractedData = await extractFields(pdfBuffer);
-
     res.status(200).json(extractedData);
   } catch (error) {
     console.error('Error processing PDF:', error);

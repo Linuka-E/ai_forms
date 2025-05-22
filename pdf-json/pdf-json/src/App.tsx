@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PdfUploader from './PdfUploader';
 import { callBackend } from './utils/api';  // adjust path as needed
 
-const ParentComponent = () => {
+const App = () => {
   const [pdfText, setPdfText] = useState('');
   const [backendResponse, setBackendResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -42,4 +42,4 @@ const ParentComponent = () => {
   );
 };
 
-export default ParentComponent;
+export default App;

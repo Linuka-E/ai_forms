@@ -28,7 +28,9 @@ export class GrokService {
               "helperText": "",
               "placeHolder": "",
               "required": <true|false>,
-              "options": [ "<option1>", "<option2>", ... ] // Only for SelectField
+              "options": [ "<option1>", "<option2>", ... ] // Only for SelectField,CheckboxField,RadioField
+              "dateFormat": "DD/MM/YY" (only display this for type:dateField)
+              "initialValue":  (only display this for type:dateField)
             }
           }
           // ...more fields
@@ -41,6 +43,9 @@ export class GrokService {
       - For other fields, omit the "options" property.
       - Only include properties shown above.
       - Do not add any extra explanation or text, just the JSON object.
+      - question the required an response as a number are NumberFields
+      - if its asking for an address the type should be an addressField
+      - only include the initial value if its a dateField and make it the current date
 
       Prompt: "${query}";
     `;

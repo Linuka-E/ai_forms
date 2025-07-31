@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // add api key here - remove before pushing to git
-const genAI = new GoogleGenerativeAI("AIzaSyA84S8r3_BnqXnxV3Mh5-fxsyKU90FZ4oo"); // !!! make sure to remove before pushing !!!
+const genAI = new GoogleGenerativeAI(); // !!! make sure to remove before pushing !!!
 
 export default function PdfExtractor() {
   // variables for extracting the text
